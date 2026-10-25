@@ -1,0 +1,30 @@
+# Runs check50 on every assignment each time a student pushes,
+# then sends the results to the SPARK grading sheet.
+name: SPARK autograder
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install check50
+        run: pip install check50
+
+      - name: Check assignments and send results to the grading sheet
+        env:
+          # Paste the web app URL from the Google Sheet (Deploy > Manage deployments)
+          SHEET_URL: "https://script.google.com/macros/s/AKfycbw-ImW7EZ2dnRIQEffcWCnxjG3Dz7gVs4Qo0FM-joG6YsgjSR6FPqdhlauW5nD4Mu_EeA/exec"
+          # Must match TOKEN at the top of the sheet's Apps Script
+          SHEET_TOKEN: "spark-cananyi"
+          CHECKS_REPO: "camananyi/spark-checks/main"
+        run: python3 .github/spark/send_results.py
